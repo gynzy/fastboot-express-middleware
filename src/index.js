@@ -1,6 +1,6 @@
 'use strict';
 
-function fastbootExpressMiddleware(distPath, options) {
+function fastbootExpressMiddlewareWithCookieFix(distPath, options) {
   let opts = options;
 
   if (arguments.length === 1) {
@@ -38,7 +38,11 @@ function fastbootExpressMiddleware(distPath, options) {
           let statusMessage = result.error ? 'NOT OK ' : 'OK ';
 
           for (var pair of headers.entries()) {
-            res.set(pair[0], pair[1]);
+            if (pair[0].toLowerCase() === 'set-cookie') {
+              res.append('Set-Cookie', pair[1]);
+            } else {
+              res.set(pair[0], pair[1]);
+            }
           }
 
           if (result.error) {
@@ -90,4 +94,4 @@ function _log(statusCode, message, startTime) {
   console.log(chalk.blue(now.toISOString()) + ' ' + chalk[color](statusCode) + ' ' + message);
 }
 
-module.exports = fastbootExpressMiddleware;
+module.exports = fastbootExpressMiddlewareWithCookieFix;
